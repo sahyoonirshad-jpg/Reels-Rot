@@ -10,15 +10,17 @@ export default async function NewReelPage() {
   if (!userId) redirect("/login?message=" + encodeURIComponent("Sign in to post a reel."));
 
   return (
-    <main className="flex flex-1 flex-col items-center bg-black px-4 py-6 text-white">
-      <div className="mb-4 flex w-full max-w-sm items-center justify-between">
-        <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back
-        </Link>
-        <h1 className="text-lg font-bold">New reel</h1>
-        <span className="w-10" />
+    <main className="flex flex-1 flex-col items-center px-4 py-6">
+      <div className="card flex w-full max-w-sm flex-col gap-4 p-5">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="sticker bg-white px-3 py-1 text-sm">
+            ← Back
+          </Link>
+          <h1 className="font-display text-xl font-bold">New reel</h1>
+          <span className="w-16" />
+        </div>
+        <NewReelForm userId={userId} />
       </div>
-      <NewReelForm userId={userId} />
     </main>
   );
 }

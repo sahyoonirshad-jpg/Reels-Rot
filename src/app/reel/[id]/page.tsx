@@ -50,56 +50,63 @@ export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
   if (!reel) notFound();
 
   return (
-    <main className="flex flex-1 flex-col items-center bg-black px-4 py-6 text-white">
+    <main className="flex flex-1 flex-col items-center px-4 py-6">
       <div className="flex w-full max-w-md flex-col gap-4">
-        <Link href="/" className="text-sm text-zinc-400 hover:text-white">
+        <Link href="/" className="sticker self-start bg-white px-4 py-1 text-sm">
           ← Back to reels
         </Link>
 
-        <video
-          src={reel.video_url}
-          className="mx-auto max-h-[50dvh] rounded-2xl bg-zinc-900"
-          controls
-          loop
-          playsInline
-          preload="metadata"
-        />
-        <div>
-          <p className="font-semibold">@{reel.profiles?.username ?? "unknown"}</p>
-          {reel.caption && <p className="mt-1 text-sm text-zinc-300">{reel.caption}</p>}
+        <div className="card flex flex-col gap-3 p-4">
+          <video
+            src={reel.video_url}
+            className="mx-auto max-h-[50dvh] rounded-2xl border-2 border-ink bg-ink"
+            controls
+            loop
+            playsInline
+            preload="metadata"
+          />
+          <div>
+            <p className="font-display text-lg font-semibold">@{reel.profiles?.username ?? "unknown"}</p>
+            {reel.caption && <p className="mt-1 text-sm">{reel.caption}</p>}
+          </div>
         </div>
 
-        <h2 className="mt-2 border-t border-zinc-800 pt-4 font-bold">
-          Comments · {comments?.length ?? 0}
-        </h2>
+        <div className="card flex flex-col gap-3 p-4">
+          <h2 className="font-display text-lg font-bold">Comments · {comments?.length ?? 0}</h2>
 
-        {comments && comments.length > 0 ? (
-          <ul className="flex flex-col gap-3">
-            {comments.map((comment) => (
-              <li key={comment.id} className="flex items-start justify-between gap-3">
-                <p className="text-sm">
-                  <span className="font-semibold">@{comment.profiles?.username ?? "unknown"}</span>{" "}
-                  <span className="whitespace-pre-wrap break-words text-zinc-200">{comment.body}</span>
-                  <span className="ml-2 text-xs text-zinc-500">{timeAgo(comment.created_at)}</span>
-                </p>
-                {comment.user_id === userId && (
-                  <form action={deleteComment.bind(null, comment.id)}>
-                    <button className="text-xs text-zinc-500 hover:text-red-400">Delete</button>
-                  </form>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-zinc-500">No comments yet. Be the first!</p>
-        )}
+          {comments && comments.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {comments.map((comment, i) => (
+                <li
+                  key={comment.id}
+                  className={`flex items-start justify-between gap-3 rounded-2xl border-2 border-ink px-3 py-2 ${
+                    ["bg-sky/40", "bg-lavender/50", "bg-mint/40", "bg-lime/50"][i % 4]
+                  }`}
+                >
+                  <p className="text-sm">
+                    <span className="font-display font-semibold">@{comment.profiles?.username ?? "unknown"}</span>{" "}
+                    <span className="whitespace-pre-wrap break-words">{comment.body}</span>
+                    <span className="ml-2 text-xs opacity-60">{timeAgo(comment.created_at)}</span>
+                  </p>
+                  {comment.user_id === userId && (
+                    <form action={deleteComment.bind(null, comment.id)}>
+                      <button className="text-xs underline opacity-60 hover:opacity-100">Delete</button>
+                    </form>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm opacity-70">No comments yet. Be the first!</p>
+          )}
+        </div>
 
         {userId ? (
           <CommentForm reelId={reel.id} />
         ) : (
           <Link
             href={"/login?message=" + encodeURIComponent("Sign in to comment.")}
-            className="mt-2 rounded-full bg-white py-3 text-center text-sm font-semibold text-black"
+            className="sticker bg-sky py-3 text-center"
           >
             Sign in to comment
           </Link>

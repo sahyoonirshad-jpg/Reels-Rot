@@ -12,7 +12,7 @@ export function insertAtCursor(field: HTMLInputElement | HTMLTextAreaElement, te
 
 export function EmojiRow({ onPick, disabled }: { onPick: (emoji: string) => void; disabled?: boolean }) {
   return (
-    <div className="flex justify-between rounded-full bg-zinc-900/90 px-3 py-1">
+    <div className="flex justify-between rounded-full border-2 border-ink bg-white/80 px-2 py-1">
       {QUICK_EMOJIS.map((emoji) => (
         <button
           key={emoji}

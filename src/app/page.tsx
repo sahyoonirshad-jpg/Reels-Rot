@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChatIcon } from "@/components/icons";
 import { LikeButton } from "@/components/like-button";
 import { ReelVideo } from "@/components/reel-video";
 import { TopBar } from "@/components/top-bar";
@@ -39,46 +40,58 @@ export default async function Home() {
 
   if (error) {
     return (
-      <main className="flex flex-1 items-center justify-center bg-black p-6 text-red-400">
-        Could not load reels: {error.message}
+      <main className="flex flex-1 items-center justify-center p-6">
+        <p className="card p-6">Could not load reels: {error.message}</p>
       </main>
     );
   }
 
   if (!reels || reels.length === 0) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center gap-2 bg-black text-white">
+      <main className="flex flex-1 items-center justify-center p-6">
         {topBar}
-        <h1 className="text-4xl font-bold">Reels Rot</h1>
-        <p className="text-zinc-400">No reels yet.</p>
+        <div className="card flex flex-col items-center gap-3 p-8 text-center">
+          <h1 className="font-display text-2xl font-bold">No reels yet</h1>
+          <p className="text-sm">Be the first to post something rotten.</p>
+          <Link href="/new" className="sticker mt-2 bg-lime px-5 py-2">
+            + Post a reel
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="h-dvh snap-y snap-mandatory overflow-y-scroll bg-black">
+    <main className="h-dvh snap-y snap-mandatory overflow-y-scroll">
       {topBar}
       {reels.map((reel) => (
         <section
           key={reel.id}
-          className="flex h-dvh snap-start items-center justify-center"
+          className="flex h-dvh snap-start items-center justify-center sm:pb-4 sm:pt-20"
         >
-          <div className="relative aspect-[9/16] h-full max-w-full bg-zinc-900">
+          {/* Full screen on phones; a rounded sticker frame on bigger screens.
+              isolate + translateZ(0) gives the frame its own drawing layer, which stops a
+              Chrome-on-Windows bug where a video in a rounded clipped box goes black. */}
+          <div className="relative isolate aspect-[9/16] h-full max-w-full overflow-hidden bg-ink [transform:translateZ(0)] sm:rounded-[2rem] sm:border-[3px] sm:border-ink sm:shadow-[6px_6px_0_var(--color-ink)]">
             <ReelVideo src={reel.video_url} />
-            <div className="pointer-events-none absolute inset-x-0 bottom-16 p-4 pr-16 text-white">
-              <p className="font-semibold">@{reel.profiles?.username ?? "unknown"}</p>
-              {reel.caption && <p className="mt-1 text-sm">{reel.caption}</p>}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent p-4 pb-16 pr-20 text-white">
+              <p className="font-display text-lg font-semibold drop-shadow">@{reel.profiles?.username ?? "unknown"}</p>
+              {reel.caption && <p className="mt-1 text-sm drop-shadow">{reel.caption}</p>}
             </div>
-            <div className="absolute bottom-24 right-3 flex flex-col items-center gap-5 text-white">
+            <div className="absolute bottom-24 right-3 flex flex-col items-center gap-4">
               <LikeButton
                 reelId={reel.id}
                 liked={likedByMe.has(reel.id)}
                 count={reel.likes[0]?.count ?? 0}
                 signedIn={!!userId}
               />
-              <Link href={`/reel/${reel.id}`} className="flex flex-col items-center" aria-label="Comments">
-                <span className="text-3xl drop-shadow">💬</span>
-                <span className="text-xs font-semibold">{reel.comments[0]?.count ?? 0}</span>
+              <Link href={`/reel/${reel.id}`} className="flex flex-col items-center gap-1" aria-label="Comments">
+                <span className="bubble">
+                  <ChatIcon />
+                </span>
+                <span className="rounded-full border-2 border-ink bg-white px-2 font-display text-xs font-semibold">
+                  {reel.comments[0]?.count ?? 0}
+                </span>
               </Link>
             </div>
           </div>

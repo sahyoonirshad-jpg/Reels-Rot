@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { startTransition, useOptimistic } from "react";
 import { toggleLike } from "@/app/reels/actions";
+import { HeartIcon } from "@/components/icons";
 
 type Props = { reelId: string; liked: boolean; count: number; signedIn: boolean };
 
@@ -12,8 +13,12 @@ export function LikeButton({ reelId, liked, count, signedIn }: Props) {
 
   const content = (
     <>
-      <span className="text-3xl drop-shadow">{shown.liked ? "❤️" : "🤍"}</span>
-      <span className="text-xs font-semibold">{shown.count}</span>
+      <span className="bubble">
+        <HeartIcon filled={shown.liked} />
+      </span>
+      <span className="rounded-full border-2 border-ink bg-white px-2 font-display text-xs font-semibold">
+        {shown.count}
+      </span>
     </>
   );
 
@@ -21,7 +26,7 @@ export function LikeButton({ reelId, liked, count, signedIn }: Props) {
     return (
       <Link
         href={"/login?message=" + encodeURIComponent("Sign in to like reels.")}
-        className="flex flex-col items-center"
+        className="flex flex-col items-center gap-1"
         aria-label="Sign in to like"
       >
         {content}
@@ -37,7 +42,7 @@ export function LikeButton({ reelId, liked, count, signedIn }: Props) {
   }
 
   return (
-    <button onClick={click} className="flex flex-col items-center" aria-label={shown.liked ? "Unlike" : "Like"}>
+    <button onClick={click} className="flex flex-col items-center gap-1" aria-label={shown.liked ? "Unlike" : "Like"}>
       {content}
     </button>
   );

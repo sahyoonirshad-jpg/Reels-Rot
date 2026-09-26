@@ -18,11 +18,9 @@ export function CommentForm({ reelId }: { reelId: string }) {
           required
           maxLength={500}
           autoComplete="off"
-          className="flex-1 rounded-full bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-white/40"
+          className="field flex-1 rounded-full! text-sm"
         />
-        <button className="rounded-full bg-white px-5 text-sm font-semibold text-black hover:bg-zinc-200">
-          Post
-        </button>
+        <button className="sticker bg-lime px-5 text-sm">Post</button>
       </div>
     </form>
   );

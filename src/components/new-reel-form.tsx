@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { EmojiRow, insertAtCursor } from "@/components/emoji-row";
+import { UploadIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
 
 const MAX_BYTES = 50 * 1024 * 1024; // matches the 50 MB limit on the storage bucket
@@ -84,15 +85,15 @@ export function NewReelForm({ userId }: { userId: string }) {
   }
 
   return (
-    <form onSubmit={share} className="flex w-full max-w-sm flex-col gap-4">
-      <label className="relative flex aspect-[9/16] w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500">
+    <form onSubmit={share} className="flex w-full flex-col gap-4">
+      <label className="relative flex aspect-[9/16] w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-[3px] border-dashed border-ink bg-white/60 transition-colors hover:bg-white/90">
         {previewUrl ? (
           <video src={previewUrl} className="h-full w-full object-cover" autoPlay muted loop playsInline />
         ) : (
-          <span className="px-6 text-center">
-            Tap to choose a vertical video
-            <br />
-            <span className="text-xs">.mp4, .webm or .mov · up to 50 MB</span>
+          <span className="flex flex-col items-center gap-2 px-6 text-center">
+            <UploadIcon />
+            <span className="font-display text-lg font-semibold">Tap to choose a vertical video</span>
+            <span className="text-xs opacity-70">.mp4, .webm or .mov · up to 50 MB</span>
           </span>
         )}
         <input
@@ -113,15 +114,12 @@ export function NewReelForm({ userId }: { userId: string }) {
         maxLength={300}
         rows={2}
         disabled={posting}
-        className="w-full resize-none rounded-lg bg-zinc-900 px-4 py-3 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-white/40"
+        className="field resize-none"
       />
 
-      {error && <p className="rounded-lg bg-red-500/15 p-3 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded-2xl border-2 border-ink bg-alert p-3 text-sm">{error}</p>}
 
-      <button
-        disabled={!file || posting}
-        className="rounded-lg bg-white py-3 font-semibold text-black hover:bg-zinc-200 disabled:opacity-40"
-      >
+      <button disabled={!file || posting} className="sticker bg-lime py-3 text-lg">
         {posting ? "Uploading… keep this page open" : "Share"}
       </button>
     </form>

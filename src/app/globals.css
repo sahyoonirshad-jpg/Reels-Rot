@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ───────────── Reels Rot pastel theme ─────────────
+   Change a color here and it changes everywhere. */
+@theme {
+  --color-ink: #1b2340; /* deep navy: text, outlines, shadows */
+  --color-sky: #9fd8ff; /* main buttons */
+  --color-lavender: #c4c1ff;
+  --color-mint: #a6f0cf;
+  --color-lime: #d8f99a; /* "post" buttons */
+  --color-alert: #ffd2c4; /* error messages */
+  --color-cream: #f4f7ff;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-fredoka);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--color-ink);
+  background-color: var(--color-cream);
+}
+
+@layer components {
+  /* Soft gradient with floating color blobs, used behind every page. */
+  .pastel-bg {
+    background:
+      radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--color-mint) 80%, transparent) 0, transparent 35%),
+      radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--color-lavender) 90%, transparent) 0, transparent 35%),
+      radial-gradient(circle at 80% 85%, color-mix(in srgb, var(--color-lime) 70%, transparent) 0, transparent 38%),
+      radial-gradient(circle at 10% 90%, color-mix(in srgb, var(--color-sky) 90%, transparent) 0, transparent 35%),
+      linear-gradient(135deg, var(--color-sky), var(--color-lavender));
+    background-attachment: fixed;
+  }
+
+  /* Chunky "sticker" button: plum outline with a little offset shadow. */
+  .sticker {
+    font-family: var(--font-display);
+    font-weight: 600;
+    border: 2.5px solid var(--color-ink);
+    border-radius: 9999px;
+    box-shadow: 3px 3px 0 var(--color-ink);
+    color: var(--color-ink);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .sticker:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-ink);
+  }
+  .sticker:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+  .sticker:disabled {
+    opacity: 0.45;
+    transform: none;
+    box-shadow: 3px 3px 0 var(--color-ink);
+    cursor: not-allowed;
+  }
+
+  /* Frosted white card for forms and comment lists. */
+  .card {
+    background: color-mix(in srgb, white 80%, transparent);
+    backdrop-filter: blur(8px);
+    border: 2.5px solid var(--color-ink);
+    border-radius: 1.75rem;
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+
+  /* Text boxes. */
+  .field {
+    width: 100%;
+    background: white;
+    color: var(--color-ink);
+    border: 2px solid var(--color-ink);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+  }
+  .field::placeholder {
+    color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+  }
+  .field:focus {
+    box-shadow: 0 0 0 4px var(--color-lavender);
+  }
+
+  /* Round icon bubble for likes and comments on the feed. */
+  .bubble {
+    display: flex;
+    height: 3rem;
+    width: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: color-mix(in srgb, white 85%, transparent);
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 2px 2px 0 var(--color-ink);
+    font-size: 1.4rem;
+    transition: transform 0.15s;
+  }
+  .bubble:hover {
+    transform: scale(1.08);
+  }
+
+  /* Blue → violet → green gradient text for the logo. */
+  .logo-text {
+    font-family: var(--font-display);
+    font-weight: 700;
+    background: linear-gradient(90deg, #2563eb, #7c3aed, #059669);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }

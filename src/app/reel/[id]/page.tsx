@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addComment, deleteComment } from "@/app/reels/actions";
+import { deleteComment } from "@/app/reels/actions";
+import { CommentForm } from "@/components/comment-form";
 import { createClient } from "@/lib/supabase/server";
 
 type Reel = {
@@ -94,19 +95,7 @@ export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
         )}
 
         {user ? (
-          <form action={addComment.bind(null, reel.id)} className="sticky bottom-4 mt-2 flex gap-2">
-            <input
-              name="body"
-              placeholder="Add a comment…"
-              required
-              maxLength={500}
-              autoComplete="off"
-              className="flex-1 rounded-full bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-white/40"
-            />
-            <button className="rounded-full bg-white px-5 text-sm font-semibold text-black hover:bg-zinc-200">
-              Post
-            </button>
-          </form>
+          <CommentForm reelId={reel.id} />
         ) : (
           <Link
             href={"/login?message=" + encodeURIComponent("Sign in to comment.")}

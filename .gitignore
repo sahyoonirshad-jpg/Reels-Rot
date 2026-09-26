@@ -42,3 +42,6 @@ next-env.d.ts
 
 # claude desktop app settings
 /.claude/
+
+# stray folder, not part of the app
+/Reels ROt/

@@ -1,5 +1,5 @@
-import { connection } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { TopBar } from "@/components/top-bar";
+import { createClient } from "@/lib/supabase/server";
 
 type Reel = {
   id: string;
@@ -9,8 +9,8 @@ type Reel = {
 };
 
 export default async function Home() {
-  // Load fresh reels on every visit instead of freezing them at build time.
-  await connection();
+  // Reading cookies here also makes Next.js load fresh reels on every visit.
+  const supabase = await createClient();
 
   const { data: reels, error } = await supabase
     .from("reels")
@@ -29,6 +29,7 @@ export default async function Home() {
   if (!reels || reels.length === 0) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-2 bg-black text-white">
+        <TopBar />
         <h1 className="text-4xl font-bold">Reels Rot</h1>
         <p className="text-zinc-400">No reels yet.</p>
       </main>
@@ -37,6 +38,7 @@ export default async function Home() {
 
   return (
     <main className="h-dvh snap-y snap-mandatory overflow-y-scroll bg-black">
+      <TopBar />
       {reels.map((reel) => (
         <section
           key={reel.id}

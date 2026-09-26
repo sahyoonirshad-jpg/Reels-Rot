@@ -52,7 +52,7 @@ export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
   return (
     <main className="flex flex-1 flex-col items-center px-4 py-6">
       <div className="flex w-full max-w-md flex-col gap-4">
-        <Link href="/" className="sticker self-start bg-white px-4 py-1 text-sm">
+        <Link href={`/#reel-${reel.id}`} className="sticker self-start bg-white px-4 py-1 text-sm">
           ← Back to reels
         </Link>
 

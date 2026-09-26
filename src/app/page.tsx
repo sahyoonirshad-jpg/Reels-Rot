@@ -73,7 +73,7 @@ export default async function Home() {
               isolate + translateZ(0) gives the frame its own drawing layer, which stops a
               Chrome-on-Windows bug where a video in a rounded clipped box goes black. */}
           <div className="relative isolate aspect-[9/16] h-full max-w-full overflow-hidden bg-ink [transform:translateZ(0)] sm:rounded-[2rem] sm:border-[3px] sm:border-ink sm:shadow-[6px_6px_0_var(--color-ink)]">
-            <ReelVideo src={reel.video_url} />
+            <ReelVideo src={reel.video_url} reelId={reel.id} />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 via-ink/30 to-transparent p-4 pb-16 pr-20 text-white">
               <p className="font-display text-lg font-semibold drop-shadow">@{reel.profiles?.username ?? "unknown"}</p>
               {reel.caption && <p className="mt-1 text-sm drop-shadow">{reel.caption}</p>}

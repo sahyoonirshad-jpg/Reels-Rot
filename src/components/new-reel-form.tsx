@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { EmojiRow, insertAtCursor } from "@/components/emoji-row";
 import { createClient } from "@/lib/supabase/client";
 
 const MAX_BYTES = 50 * 1024 * 1024; // matches the 50 MB limit on the storage bucket
@@ -14,6 +15,14 @@ export function NewReelForm({ userId }: { userId: string }) {
   const [caption, setCaption] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
+  const captionRef = useRef<HTMLTextAreaElement>(null);
+
+  function addEmoji(emoji: string) {
+    const field = captionRef.current;
+    if (!field || field.value.length + emoji.length > 300) return;
+    insertAtCursor(field, emoji);
+    setCaption(field.value);
+  }
 
   // Free the preview's memory when leaving the page.
   useEffect(() => {
@@ -50,7 +59,8 @@ export function NewReelForm({ userId }: { userId: string }) {
 
     const upload = await supabase.storage
       .from("reels")
-      .upload(path, file, { contentType: file.type });
+      // Each file name is unique and never changes, so phones may keep it for a year.
+      .upload(path, file, { contentType: file.type, cacheControl: "31536000" });
     if (upload.error) {
       setError(`Upload failed: ${upload.error.message}`);
       setPosting(false);
@@ -94,7 +104,9 @@ export function NewReelForm({ userId }: { userId: string }) {
         />
       </label>
 
+      <EmojiRow onPick={addEmoji} disabled={posting} />
       <textarea
+        ref={captionRef}
         value={caption}
         onChange={(e) => setCaption(e.target.value)}
         placeholder="Write a caption…"

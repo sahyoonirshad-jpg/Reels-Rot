@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import { ReelVideo } from "@/components/reel-video";
 import { TopBar } from "@/components/top-bar";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 
 type Reel = {
   id: string;
@@ -16,22 +16,26 @@ type Reel = {
 export default async function Home() {
   // Reading cookies here also makes Next.js load fresh reels on every visit.
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userId = await getUserId(supabase);
 
-  const { data: reels, error } = await supabase
-    .from("reels")
-    .select("id, video_url, caption, profiles!user_id(username), likes(count), comments(count)")
-    .order("created_at", { ascending: false })
-    .returns<Reel[]>();
+  // Ask for reels, my likes and my username at the same time, not one after another.
+  const [{ data: reels, error }, { data: myLikes }, { data: me }] = await Promise.all([
+    supabase
+      .from("reels")
+      .select("id, video_url, caption, profiles!user_id(username), likes(count), comments(count)")
+      .order("created_at", { ascending: false })
+      .returns<Reel[]>(),
+    userId
+      ? supabase.from("likes").select("reel_id").eq("user_id", userId)
+      : Promise.resolve({ data: null }),
+    userId
+      ? supabase.from("profiles").select("username").eq("id", userId).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
 
   // Which reels has the signed-in person already liked?
-  const likedByMe = new Set<string>();
-  if (user) {
-    const { data: myLikes } = await supabase.from("likes").select("reel_id").eq("user_id", user.id);
-    myLikes?.forEach((like) => likedByMe.add(like.reel_id));
-  }
+  const likedByMe = new Set(myLikes?.map((like) => like.reel_id));
+  const topBar = <TopBar signedIn={!!userId} username={me?.username ?? null} />;
 
   if (error) {
     return (
@@ -44,7 +48,7 @@ export default async function Home() {
   if (!reels || reels.length === 0) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-2 bg-black text-white">
-        <TopBar />
+        {topBar}
         <h1 className="text-4xl font-bold">Reels Rot</h1>
         <p className="text-zinc-400">No reels yet.</p>
       </main>
@@ -53,7 +57,7 @@ export default async function Home() {
 
   return (
     <main className="h-dvh snap-y snap-mandatory overflow-y-scroll bg-black">
-      <TopBar />
+      {topBar}
       {reels.map((reel) => (
         <section
           key={reel.id}
@@ -70,7 +74,7 @@ export default async function Home() {
                 reelId={reel.id}
                 liked={likedByMe.has(reel.id)}
                 count={reel.likes[0]?.count ?? 0}
-                signedIn={!!user}
+                signedIn={!!userId}
               />
               <Link href={`/reel/${reel.id}`} className="flex flex-col items-center" aria-label="Comments">
                 <span className="text-3xl drop-shadow">💬</span>

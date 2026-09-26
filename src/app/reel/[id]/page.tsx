@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteComment } from "@/app/reels/actions";
 import { CommentForm } from "@/components/comment-form";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 
 type Reel = {
   id: string;
@@ -30,24 +30,24 @@ function timeAgo(iso: string) {
 export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userId = await getUserId(supabase);
 
-  const { data: reel } = await supabase
-    .from("reels")
-    .select("id, video_url, caption, profiles!user_id(username)")
-    .eq("id", id)
-    .returns<Reel[]>()
-    .maybeSingle();
+  // Load the reel and its comments at the same time.
+  const [{ data: reel }, { data: comments }] = await Promise.all([
+    supabase
+      .from("reels")
+      .select("id, video_url, caption, profiles!user_id(username)")
+      .eq("id", id)
+      .returns<Reel[]>()
+      .maybeSingle(),
+    supabase
+      .from("comments")
+      .select("id, body, created_at, user_id, profiles!user_id(username)")
+      .eq("reel_id", id)
+      .order("created_at", { ascending: true })
+      .returns<Comment[]>(),
+  ]);
   if (!reel) notFound();
-
-  const { data: comments } = await supabase
-    .from("comments")
-    .select("id, body, created_at, user_id, profiles!user_id(username)")
-    .eq("reel_id", id)
-    .order("created_at", { ascending: true })
-    .returns<Comment[]>();
 
   return (
     <main className="flex flex-1 flex-col items-center bg-black px-4 py-6 text-white">
@@ -82,7 +82,7 @@ export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
                   <span className="whitespace-pre-wrap break-words text-zinc-200">{comment.body}</span>
                   <span className="ml-2 text-xs text-zinc-500">{timeAgo(comment.created_at)}</span>
                 </p>
-                {comment.user_id === user?.id && (
+                {comment.user_id === userId && (
                   <form action={deleteComment.bind(null, comment.id)}>
                     <button className="text-xs text-zinc-500 hover:text-red-400">Delete</button>
                   </form>
@@ -94,7 +94,7 @@ export default async function ReelPage({ params }: PageProps<"/reel/[id]">) {
           <p className="text-sm text-zinc-500">No comments yet. Be the first!</p>
         )}
 
-        {user ? (
+        {userId ? (
           <CommentForm reelId={reel.id} />
         ) : (
           <Link

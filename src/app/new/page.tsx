@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { NewReelForm } from "@/components/new-reel-form";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 
 export default async function NewReelPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userId = await getUserId(await createClient());
 
   // Only signed-in people can post.
-  if (!user) redirect("/login?message=" + encodeURIComponent("Sign in to post a reel."));
+  if (!userId) redirect("/login?message=" + encodeURIComponent("Sign in to post a reel."));
 
   return (
     <main className="flex flex-1 flex-col items-center bg-black px-4 py-6 text-white">
@@ -21,7 +18,7 @@ export default async function NewReelPage() {
         <h1 className="text-lg font-bold">New reel</h1>
         <span className="w-10" />
       </div>
-      <NewReelForm userId={user.id} />
+      <NewReelForm userId={userId} />
     </main>
   );
 }

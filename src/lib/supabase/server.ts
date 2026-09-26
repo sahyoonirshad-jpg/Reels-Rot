@@ -10,6 +10,13 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
+// Who is signed in? Checks the sign-in ticket's signature on our server,
+// so it's much faster than asking Supabase with getUser().
+export async function getUserId(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data } = await supabase.auth.getClaims();
+  return data?.claims.sub ?? null;
+}
+
 // A new client per request, so it knows which person (cookie) is asking.
 export async function createClient() {
   const cookieStore = await cookies();

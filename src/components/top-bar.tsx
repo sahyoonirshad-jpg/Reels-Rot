@@ -22,6 +22,9 @@ export async function TopBar() {
 
       {user ? (
         <form action={signOut} className="flex items-center gap-3 text-sm">
+          <Link href="/new" className="rounded-full bg-white px-3 py-1 font-semibold text-black">
+            + Post
+          </Link>
           <span className="font-semibold">@{username ?? "you"}</span>
           <button className="rounded-full bg-white/15 px-3 py-1 hover:bg-white/25">Sign out</button>
         </form>

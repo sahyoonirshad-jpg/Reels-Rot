@@ -1,3 +1,4 @@
+import { ReelVideo } from "@/components/reel-video";
 import { TopBar } from "@/components/top-bar";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,14 +46,7 @@ export default async function Home() {
           className="flex h-dvh snap-start items-center justify-center"
         >
           <div className="relative aspect-[9/16] h-full max-w-full bg-zinc-900">
-            <video
-              src={reel.video_url}
-              className="h-full w-full object-cover"
-              controls
-              loop
-              playsInline
-              preload="metadata"
-            />
+            <ReelVideo src={reel.video_url} />
             <div className="pointer-events-none absolute inset-x-0 bottom-16 p-4 text-white">
               <p className="font-semibold">@{reel.profiles?.username ?? "unknown"}</p>
               {reel.caption && <p className="mt-1 text-sm">{reel.caption}</p>}

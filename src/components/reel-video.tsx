@@ -2,11 +2,14 @@
 
 import { useEffect, useRef } from "react";
 
+const ON_SCREEN = 0.6; // a reel counts as "on screen" when at least 60% of it is visible
+
 // Plays when the reel is mostly on screen, pauses when you scroll away.
 // It also keeps the address bar pointing at the reel on screen (#reel-<id>),
 // so coming back from the comments page lands on the same reel.
 export function ReelVideo({ src, reelId }: { src: string; reelId: string }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const onScreen = useRef(false);
 
   useEffect(() => {
     const video = ref.current;
@@ -19,7 +22,11 @@ export function ReelVideo({ src, reelId }: { src: string; reelId: string }) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        // Use the visible percentage, not isIntersecting: isIntersecting stays true
+        // while a reel is only a sliver on screen, which made off-screen reels play.
+        onScreen.current = entry.intersectionRatio >= ON_SCREEN;
+
+        if (onScreen.current) {
           // Update the address without reloading (keeps Next.js's own history info).
           window.history.replaceState(window.history.state, "", anchor);
           video.play().catch(() => {
@@ -32,17 +39,26 @@ export function ReelVideo({ src, reelId }: { src: string; reelId: string }) {
           video.pause();
         }
       },
-      { threshold: 0.6 }
+      { threshold: ON_SCREEN }
     );
 
     observer.observe(video);
     return () => observer.disconnect();
   }, [reelId]);
 
-  // Safety net: only one reel may play at a time.
-  function pauseOthers() {
+  function handlePlay() {
+    const video = ref.current;
+    if (!video) return;
+
+    // Safety lock: a reel that isn't on screen is never allowed to play.
+    if (!onScreen.current) {
+      video.pause();
+      return;
+    }
+
+    // Only one reel may play at a time.
     document.querySelectorAll("video").forEach((other) => {
-      if (other !== ref.current) other.pause();
+      if (other !== video) other.pause();
     });
   }
 
@@ -50,7 +66,7 @@ export function ReelVideo({ src, reelId }: { src: string; reelId: string }) {
     <video
       ref={ref}
       src={src}
-      onPlay={pauseOthers}
+      onPlay={handlePlay}
       className="h-full w-full object-cover"
       controls
       loop

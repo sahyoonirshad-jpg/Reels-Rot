@@ -43,7 +43,27 @@ export function ReelVideo({ src, reelId }: { src: string; reelId: string }) {
     );
 
     observer.observe(video);
-    return () => observer.disconnect();
+
+    // Pause when the tab is hidden (switched tab, minimized window), so no reel
+    // keeps playing somewhere you can't see it. When the tab comes back, Chrome
+    // sometimes forgets to redraw the picture (sound only, empty box), so we
+    // nudge the video to its own current time, which forces a fresh frame.
+    function pauseWhenHidden() {
+      if (!video) return;
+      if (document.hidden) {
+        video.pause();
+      } else if (video.readyState > 0) {
+        video.currentTime = video.currentTime;
+      }
+    }
+    document.addEventListener("visibilitychange", pauseWhenHidden);
+    window.addEventListener("pagehide", pauseWhenHidden);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", pauseWhenHidden);
+      window.removeEventListener("pagehide", pauseWhenHidden);
+    };
   }, [reelId]);
 
   function handlePlay() {

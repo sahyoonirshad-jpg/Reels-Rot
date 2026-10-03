@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
+import { DemoButton } from "@/components/demo-button";
 
 // signedIn and username come from the page, so we don't ask the database twice.
 export function TopBar({ signedIn, username }: { signedIn: boolean; username: string | null }) {
@@ -18,9 +19,12 @@ export function TopBar({ signedIn, username }: { signedIn: boolean; username: st
           <button className="sticker bg-white px-3 py-1">Sign out</button>
         </form>
       ) : (
-        <Link href="/login" className="sticker bg-sky px-4 py-1 text-sm">
-          Sign in
-        </Link>
+        <div className="flex items-center gap-2 text-sm">
+          <DemoButton />
+          <Link href="/login" className="sticker bg-sky px-4 py-1">
+            Sign in
+          </Link>
+        </div>
       )}
     </header>
   );

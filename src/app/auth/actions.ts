@@ -46,6 +46,24 @@ export async function signIn(formData: FormData) {
   redirect("/");
 }
 
+// One click into a ready-made account. The email and password live only in
+// server settings (DEMO_EMAIL / DEMO_PASSWORD), never in the browser.
+export async function signInDemo() {
+  const email = process.env.DEMO_EMAIL;
+  const password = process.env.DEMO_PASSWORD;
+  if (!email || !password) {
+    redirect(withMessage("/login", "error", "The demo account isn't set up yet."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    redirect(withMessage("/login", "error", "The demo is taking a break. Please sign up instead."));
+  }
+
+  redirect("/");
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
